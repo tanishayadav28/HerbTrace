@@ -3,3 +3,7 @@ PyMySQL>=1.1
 cryptography>=42.0
 qrcode[pil]>=8.0
 python-dotenv>=1.0
+gunicorn>=22.0
+whitenoise>=6.6
+dj-database-url>=2.1
+psycopg[binary]>=3.1

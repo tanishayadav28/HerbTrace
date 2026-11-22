@@ -37,9 +37,17 @@ if not SECRET_KEY:
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS", "")
 
+# Render.com sets RENDER_EXTERNAL_HOSTNAME (e.g. herbtrace.onrender.com) automatically.
+RENDER_HOST = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip()
+if RENDER_HOST:
+    ALLOWED_HOSTS.append(RENDER_HOST)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_HOST}")
+
 # Base URL embedded inside QR codes. For phone scanning on a local network
 # set this to e.g. http://192.168.1.20:8000 (your PC's LAN address).
-PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
+PUBLIC_BASE_URL = os.getenv(
+    "PUBLIC_BASE_URL", f"https://{RENDER_HOST}" if RENDER_HOST else "http://127.0.0.1:8000"
+).rstrip("/")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -60,6 +68,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # serves static files in production
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -114,8 +123,13 @@ elif DB_ENGINE == "mysql":
             },
         }
     }
+elif DB_ENGINE == "postgres":
+    # Used on Render: DATABASE_URL is provided by the platform.
+    import dj_database_url
+
+    DATABASES = {"default": dj_database_url.config(env="DATABASE_URL", conn_max_age=600)}
 else:
-    raise ImproperlyConfigured("DB_ENGINE must be 'mysql' or 'sqlite'.")
+    raise ImproperlyConfigured("DB_ENGINE must be 'mysql', 'postgres' or 'sqlite'.")
 
 # ---------------------------------------------------------------- Auth
 AUTH_USER_MODEL = "accounts.User"
@@ -140,6 +154,8 @@ CSRF_COOKIE_SAMESITE = "Lax"
 X_FRAME_OPTIONS = "DENY"
 
 if not DEBUG and env_bool("DJANGO_HTTPS", True):
+    # Render terminates HTTPS at its proxy and forwards the original scheme in this header.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
@@ -156,6 +172,10 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
 
 MEDIA_URL = "media/"
 import sys  # noqa: E402
