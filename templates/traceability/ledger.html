@@ -1,0 +1,38 @@
+{% extends "app_base.html" %}
+{% load herb_extras %}
+{% block title %}Ledger integrity{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Ledger integrity</h1>
+  <form method="post" action="{% url 'traceability:ledger_verify' %}">{% csrf_token %}<button class="btn btn-leaf" type="submit"><i class="bi bi-shield-check"></i> Verify integrity</button></form></div>
+
+<div class="row g-3 mb-3">
+  <div class="col-sm-4"><div class="stat"><span class="icon"><i class="bi bi-link-45deg"></i></span><div class="value">{{ chain.total }}</div><div class="label">Total ledger records</div></div></div>
+  <div class="col-sm-4"><div class="stat {% if not report.valid %}bad{% endif %}"><span class="icon"><i class="bi bi-shield{% if report.valid %}-check{% else %}-exclamation{% endif %}"></i></span><div class="value">{{ report.valid|yesno:"Valid,Invalid" }}</div><div class="label">Chain status</div></div></div>
+  <div class="col-sm-4"><div class="stat"><span class="icon"><i class="bi bi-hash"></i></span><div class="value">#{{ chain.head_sequence }}</div><div class="label">Head record · <span class="mono">{{ chain.head_hash|short_hash:14 }}</span></div></div></div>
+</div>
+<div class="mb-3">{% include "traceability/_integrity.html" %}</div>
+<div class="disclaimer mb-4">This ledger gives <strong>record integrity and modification detection</strong>: each record stores the SHA-256 hash of the one before it, and the server recomputes every hash on verification. It does <strong>not</strong> prove the physical authenticity of herbs, and it is <strong>not decentralised</strong> — someone with full database control could rewrite the whole chain. The first record links to the genesis value <span class="mono">{{ genesis|short_hash:16 }}</span> (64 zeros).</div>
+
+<form method="get" class="filter-bar row g-2 align-items-end" data-no-loader>
+  <div class="col-md-5"><label class="form-label small" for="lq">Batch ID</label><input id="lq" class="form-control" name="q" value="{{ q }}"></div>
+  <div class="col-md-4"><label class="form-label small" for="le">Event type</label><select id="le" class="form-select" name="event"><option value="">All events</option>{% for code, label in event_labels.items %}<option value="{{ code }}" {% if code == event %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  <div class="col-md-3 d-flex gap-2"><button class="btn btn-leaf flex-fill">Filter</button><a class="btn btn-ghost" href="?" aria-label="Clear filters"><i class="bi bi-x-lg"></i></a></div>
+</form>
+<div class="table-wrap"><div class="table-responsive"><table class="table table-leaf">
+  <thead><tr><th>ID</th><th>Batch</th><th>Event</th><th>Timestamp</th><th>Previous hash</th><th>Current hash</th><th>Data</th></tr></thead>
+  <tbody>
+  {% for r in page %}
+    <tr><td>#{{ r.sequence }}</td><td class="mono">{{ r.batch_id }}</td><td>{{ r.event_type|lower|cut:"_"|title }}<div class="small text-muted-2">{{ r.actor }}</div></td>
+      <td class="text-nowrap">{{ r.timestamp|date:"d M Y H:i:s" }}</td>
+      <td class="hash-cell mono" title="{{ r.previous_hash }}">{{ r.previous_hash|short_hash:14 }}</td>
+      <td class="hash-cell mono" title="{{ r.current_hash }}">{{ r.current_hash|short_hash:14 }}</td>
+      <td><details class="event-data"><summary>View</summary><pre>{{ r.event_data|pretty_json }}</pre></details></td></tr>
+  {% empty %}<tr><td colspan="7" class="text-center text-muted-2 py-4">The ledger is empty. Records appear when collections are registered.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+{% include "partials/pagination.html" %}
+
+<div class="card-leaf p-4 mt-4"><h2 class="card-title">Verification history</h2>
+  {% for v in history %}<div class="d-flex justify-content-between border-bottom py-2"><span>{{ v.checked_at|date:"d M Y, H:i" }} · {{ v.total_records }} records{% if v.checked_by %} · {{ v.checked_by.username }}{% endif %}</span>{% include "partials/badge.html" with code=v.is_valid|yesno:"PASS,FAIL" label=v.is_valid|yesno:"Valid,Invalid" %}</div>
+  {% empty %}<p class="text-muted-2 mb-0">No verification has been run yet. Press “Verify integrity”.</p>{% endfor %}
+</div>
+{% endblock %}

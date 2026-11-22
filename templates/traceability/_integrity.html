@@ -1,0 +1,7 @@
+{% if report.valid %}
+<div class="integrity ok" role="status"><i class="bi bi-shield-check big"></i><div><strong>Ledger integrity: VALID</strong><div class="small">{{ report.chain.total }} ledger record{{ report.chain.total|pluralize }} checked. Every hash link matches and the stored data agrees with what the ledger recorded.</div></div></div>
+{% else %}
+<div class="integrity bad" role="alert"><i class="bi bi-shield-exclamation big"></i><div><strong>Ledger integrity: WARNING — records may have been altered</strong>
+  <div class="small">Do not rely on this record until an administrator has investigated.</div>
+  <ul class="small mb-0 mt-1">{% for i in report.chain.issues %}<li>{{ i.message }}</li>{% endfor %}{% for i in report.data_issues %}<li>{{ i.message }}</li>{% endfor %}</ul></div></div>
+{% endif %}

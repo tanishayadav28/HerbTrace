@@ -1,0 +1,57 @@
+{% extends "app_base.html" %}
+{% load herb_extras %}
+{% block title %}Admin dashboard{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Administrator dashboard</h1>
+  <a class="btn btn-ghost" href="{% url 'traceability:ledger' %}"><i class="bi bi-link-45deg"></i> Ledger integrity</a></div>
+
+{% if stats.pending_users or stats.pending_region %}
+<div class="alert alert-warning d-flex flex-wrap gap-3 align-items-center">
+  <strong>Needs your attention:</strong>
+  {% if stats.pending_users %}<a href="{% url 'accounts:user_list' %}?approval=PENDING">{{ stats.pending_users }} collector registration{{ stats.pending_users|pluralize }}</a>{% endif %}
+  {% if stats.pending_region %}<a href="{% url 'traceability:region_reviews' %}">{{ stats.pending_region }} collection{{ stats.pending_region|pluralize }} awaiting region review</a>{% endif %}
+</div>{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-people"></i></span><div class="value">{{ stats.users }}</div><div class="label">Total users</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-flower1"></i></span><div class="value">{{ stats.herbs }}</div><div class="label">Herbs</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-basket"></i></span><div class="value">{{ stats.collections }}</div><div class="label">Collections</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-boxes"></i></span><div class="value">{{ stats.batches }}</div><div class="label">Batches</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat warn"><span class="icon"><i class="bi bi-hourglass-split"></i></span><div class="value">{{ stats.pending_lab }}</div><div class="label">Pending lab tests</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-gear"></i></span><div class="value">{{ stats.processed }}</div><div class="label">Processed batches</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-capsule-pill"></i></span><div class="value">{{ stats.products }}</div><div class="label">Manufactured products</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-link-45deg"></i></span><div class="value">{{ stats.ledger_records }}</div><div class="label">Ledger records</div></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card-leaf p-4 h-100">
+      <h2 class="card-title">Batches by status</h2>
+      {% for row in breakdown %}
+      <div class="mb-3">
+        <div class="d-flex justify-content-between small"><span>{{ row.label }}</span><strong>{{ row.count }}</strong></div>
+        <div class="progress-leaf" role="progressbar" aria-valuenow="{{ row.percent }}" aria-valuemin="0" aria-valuemax="100"><span style="width:{{ row.percent }}%"></span></div>
+      </div>{% endfor %}
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card-leaf p-4 mb-4">
+      <h2 class="card-title">Ledger</h2>
+      {% if last_verification %}
+        <p class="mb-1">Last check: {% include "partials/badge.html" with code=last_verification.is_valid|yesno:"PASS,FAIL" label=last_verification.is_valid|yesno:"Valid,Invalid" %}</p>
+        <p class="small text-muted-2">{{ last_verification.checked_at|date:"d M Y, H:i" }} · {{ last_verification.total_records }} records</p>
+      {% else %}<p class="text-muted-2">The ledger has not been verified yet.</p>{% endif %}
+      <a class="btn btn-leaf btn-sm" href="{% url 'traceability:ledger' %}">Open ledger</a>
+    </div>
+    <div class="card-leaf p-4">
+      <h2 class="card-title">Recent batches</h2>
+      {% for b in recent_batches %}
+        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+          <div><a href="{% url 'traceability:batch_detail' b.batch_id %}">{{ b.batch_id }}</a><div class="small text-muted-2">{{ b.collection.herb.name }}</div></div>
+          {% include "partials/badge.html" with code=b.status label=b.get_status_display %}
+        </div>
+      {% empty %}<p class="text-muted-2 mb-0">No batches yet.</p>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

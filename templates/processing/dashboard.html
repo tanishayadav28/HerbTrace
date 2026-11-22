@@ -1,0 +1,14 @@
+{% extends "app_base.html" %}
+{% block title %}Processor dashboard{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Processor dashboard</h1><a class="btn btn-leaf" href="{% url 'processing:eligible' %}">View approved batches</a></div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-check2-square"></i></span><div class="value">{{ stats.ready }}</div><div class="label">Ready to start</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat warn"><span class="icon"><i class="bi bi-gear"></i></span><div class="value">{{ stats.in_progress }}</div><div class="label">In processing</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-box-seam"></i></span><div class="value">{{ stats.processed }}</div><div class="label">Processed</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-clock-history"></i></span><div class="value">{{ stats.mine }}</div><div class="label">My records</div></div></div>
+</div>
+<div class="card-leaf p-4"><h2 class="card-title">My recent steps</h2>
+  {% for p in recent %}<div class="d-flex justify-content-between border-bottom py-2"><div><span class="mono">{{ p.batch.batch_id }}</span> · {{ p.get_stage_display }}<div class="small text-muted-2">{{ p.batch.collection.herb.name }} · {{ p.processing_date|date:"d M Y" }}</div></div>{% include "partials/badge.html" with code=p.status label=p.get_status_display %}</div>
+  {% empty %}<p class="text-muted-2 mb-0">You have not recorded any processing yet.</p>{% endfor %}</div>
+{% endblock %}

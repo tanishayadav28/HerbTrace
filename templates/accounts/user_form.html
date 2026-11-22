@@ -1,0 +1,24 @@
+{% extends "app_base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{{ title }}</h1><a class="btn btn-ghost" href="{% url 'accounts:user_list' %}">Back to users</a></div>
+<div class="card-leaf p-4" style="max-width:760px">
+  {% include "partials/form_errors.html" %}
+  <form method="post" novalidate>{% csrf_token %}
+    <div class="row">
+      <div class="col-md-6">{% include "partials/field.html" with field=form.first_name %}</div>
+      <div class="col-md-6">{% include "partials/field.html" with field=form.last_name %}</div>
+      <div class="col-md-6">{% include "partials/field.html" with field=form.username %}</div>
+      <div class="col-md-6">{% include "partials/field.html" with field=form.email %}</div>
+      <div class="col-md-6">{% include "partials/field.html" with field=form.phone %}</div>
+      <div class="col-md-6">{% include "partials/field.html" with field=form.organization %}</div>
+      <div class="col-md-6">{% include "partials/field.html" with field=form.role %}</div>
+      <div class="col-md-6">{% include "partials/field.html" with field=form.approval_status %}</div>
+      <div class="col-12">{% include "partials/field.html" with field=form.password %}</div>
+      <div class="col-12">{% include "partials/field.html" with field=form.is_active %}</div>
+    </div>
+    {% if edited and edited == request.user %}<p class="small text-muted-2">You cannot change your own role, approval or active status.</p>{% endif %}
+    <button class="btn btn-leaf" type="submit">Save user</button>
+  </form>
+</div>
+{% endblock %}

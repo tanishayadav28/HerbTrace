@@ -1,0 +1,61 @@
+{% extends "app_base.html" %}
+{% load herb_extras %}
+{% block title %}{{ batch.batch_id }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="text-muted-2 small">Batch</div><h1 class="mono display" style="font-size:1.8rem">{{ batch.batch_id }}</h1></div>
+  <div>{% include "partials/badge.html" with code=batch.status label=batch.get_status_display %}</div>
+</div>
+<div class="mb-4">{% include "traceability/_integrity.html" %}</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card-leaf p-4 mb-4"><h2 class="card-title">Collection</h2>
+      <dl class="row mb-0">
+        <dt class="col-sm-4">Herb</dt><dd class="col-sm-8">{{ collection.herb.name }}{% if collection.herb.botanical_name %} <em class="text-muted-2">({{ collection.herb.botanical_name }})</em>{% endif %}</dd>
+        <dt class="col-sm-4">Collector</dt><dd class="col-sm-8">{{ collection.collector.display_name }}</dd>
+        <dt class="col-sm-4">Date &amp; time</dt><dd class="col-sm-8">{{ collection.collection_date|date:"d M Y" }}, {{ collection.collection_time|time:"H:i" }}</dd>
+        <dt class="col-sm-4">Quantity</dt><dd class="col-sm-8">{{ collection.quantity|floatformat:"-3" }} {{ collection.unit }}</dd>
+        <dt class="col-sm-4">Method / source</dt><dd class="col-sm-8">{{ collection.get_collection_method_display }} · {{ collection.get_source_type_display }}</dd>
+        <dt class="col-sm-4">Permit</dt><dd class="col-sm-8">{% if collection.permit_available %}Yes{% if collection.permit_number %} ({{ collection.permit_number }}){% endif %}{% else %}No permit recorded{% endif %}</dd>
+        <dt class="col-sm-4">Sustainability</dt><dd class="col-sm-8">{{ collection.sustainability_details|default:"—" }}</dd>
+        <dt class="col-sm-4">Location</dt><dd class="col-sm-8">{{ collection.location_name }}</dd>
+        <dt class="col-sm-4">Coordinates</dt><dd class="col-sm-8">{% if collection.has_coordinates %}<span class="mono">{{ collection.latitude }}, {{ collection.longitude }}</span> <span class="badge-soft secondary">{{ collection.get_coordinate_source_display }}{% if collection.gps_accuracy_m %} ±{{ collection.gps_accuracy_m }} m{% endif %}</span>{% else %}Not provided{% endif %}</dd>
+        <dt class="col-sm-4">Region check</dt><dd class="col-sm-8">{% include "partials/badge.html" with code=collection.region_status label=collection.get_region_status_display %}<div class="small text-muted-2 mt-1">{{ collection.region_reason }}</div></dd>
+      </dl>
+    </div>
+    <div class="card-leaf p-4 mb-4"><h2 class="card-title">Laboratory tests</h2>
+      {% for t in lab_tests %}
+        <div class="border rounded-3 p-3 mb-2">
+          <div class="d-flex justify-content-between"><strong>{{ t.test_date|date:"d M Y" }} · {{ t.tested_by.display_name }}</strong>{% include "partials/badge.html" with code=t.result label=t.result %}</div>
+          <div class="small mt-1">Purity {{ t.purity_percentage }}% · Moisture {{ t.moisture_percentage }}%</div>
+          {% if t.contamination_details %}<div class="small"><strong>Contamination:</strong> {{ t.contamination_details }}</div>{% endif %}
+          {% if t.observations %}<div class="small"><strong>Observations:</strong> {{ t.observations }}</div>{% endif %}
+          {% if t.remarks %}<div class="small"><strong>Remarks:</strong> {{ t.remarks }}</div>{% endif %}
+        </div>
+      {% empty %}<p class="text-muted-2 mb-0">Not tested yet.</p>{% endfor %}
+    </div>
+    <div class="card-leaf p-4 mb-4"><h2 class="card-title">Processing history</h2>
+      {% for p in processing_records %}
+        <div class="d-flex justify-content-between border-bottom py-2"><div><strong>{{ p.get_stage_display }}</strong> · {{ p.processing_date|date:"d M Y" }} · {{ p.location }}<div class="small text-muted-2">{{ p.description }} (by {{ p.processor.display_name }})</div></div>{% include "partials/badge.html" with code=p.status label=p.get_status_display %}</div>
+      {% empty %}<p class="text-muted-2 mb-0">No processing recorded.</p>{% endfor %}
+    </div>
+    {% if manufacturing %}
+    <div class="card-leaf p-4"><h2 class="card-title">Manufacturing</h2>
+      <p class="mb-1">{{ manufacturing.manufacturer_name }} · {{ manufacturing.location }} · {{ manufacturing.manufacturing_date|date:"d M Y" }}</p>
+      {% if formulation %}<p class="mb-0">Product: <strong>{{ formulation.product_name }}</strong> ({{ formulation.formulation_code }}) · <a href="{% url 'verification:public' formulation.public_id %}">Public page</a></p>{% endif %}
+    </div>{% endif %}
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card-leaf p-3 mb-4"><h2 class="card-title px-1 pt-1">Collection location</h2>
+      <div class="map-box" data-markers-id="marker-data"></div>
+      {% if collection.has_coordinates and collection.coordinate_source == 'MANUAL' %}<p class="small text-muted-2 mt-2 mb-0">These coordinates were typed in or picked on the map, not captured by a device GPS.</p>{% endif %}
+    </div>
+    <div class="card-leaf p-4"><h2 class="card-title">Traceability timeline</h2>{% include "traceability/_timeline.html" %}</div>
+  </div>
+</div>
+{% if collection.has_coordinates %}
+<script id="marker-data" type="application/json">[{"lat": {{ collection.latitude|stringformat:"s" }}, "lng": {{ collection.longitude|stringformat:"s" }}, "title": "{{ collection.herb.name|escapejs }} – {{ batch.batch_id }}", "detail": "{{ collection.location_name|escapejs }}", "source": "{{ collection.get_coordinate_source_display|escapejs }}", "accuracy": {% if collection.gps_accuracy_m %}{{ collection.gps_accuracy_m }}{% else %}null{% endif %}}]</script>
+{% else %}<script id="marker-data" type="application/json">[]</script>{% endif %}
+{% endblock %}

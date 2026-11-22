@@ -1,0 +1,14 @@
+{% extends "app_base.html" %}
+{% block title %}Approved batches{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Laboratory-approved batches</h1></div>
+{% include "partials/batch_filters.html" %}
+<div class="table-wrap"><div class="table-responsive"><table class="table table-leaf">
+  <thead><tr><th>Batch ID</th><th>Herb</th><th>Quantity</th><th>Collected</th><th>Status</th><th class="text-end">Action</th></tr></thead><tbody>
+  {% for b in page %}<tr><td class="mono fw-semibold">{{ b.batch_id }}</td><td>{{ b.collection.herb.name }}</td><td>{{ b.collection.quantity|floatformat:"-3" }} {{ b.collection.unit }}</td><td>{{ b.collection.collection_date|date:"d M Y" }}</td>
+    <td>{% include "partials/badge.html" with code=b.status label=b.get_status_display %}</td>
+    <td class="text-end text-nowrap"><a class="btn btn-sm btn-ghost" href="{% url 'traceability:batch_detail' b.batch_id %}">Details</a> <a class="btn btn-sm btn-leaf" href="{% url 'processing:add' b.batch_id %}">Add step</a></td></tr>
+  {% empty %}<tr><td colspan="6" class="text-center text-muted-2 py-4">No laboratory-approved batches are available. Batches appear here after they pass testing.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+{% include "partials/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "app_base.html" %}
+{% block title %}Add processing · {{ batch.batch_id }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Add processing step</h1><a class="btn btn-ghost" href="{% url 'processing:eligible' %}">Back</a></div>
+<div class="row g-4">
+  <div class="col-lg-4"><div class="card-leaf p-4"><h2 class="card-title">Batch</h2>
+    <p class="mono fw-semibold mb-1">{{ batch.batch_id }}</p><p class="mb-2">{{ batch.collection.herb.name }} · {{ batch.collection.quantity|floatformat:"-3" }} {{ batch.collection.unit }}</p>
+    {% include "partials/badge.html" with code=batch.status label=batch.get_status_display %}
+    <h3 class="h6 mt-4">Steps so far</h3>
+    {% for r in records %}<div class="small border-bottom py-1">{{ r.get_stage_display }} · {{ r.processing_date|date:"d M" }} · {{ r.get_status_display }}</div>{% empty %}<p class="small text-muted-2 mb-0">None yet.</p>{% endfor %}</div></div>
+  <div class="col-lg-8"><div class="card-leaf p-4">
+    {% include "partials/form_errors.html" %}
+    <form method="post" novalidate>{% csrf_token %}
+      <div class="row">
+        <div class="col-md-6">{% include "partials/field.html" with field=form.stage %}</div>
+        <div class="col-md-6">{% include "partials/field.html" with field=form.processing_date %}</div>
+        <div class="col-12">{% include "partials/field.html" with field=form.location %}</div>
+        <div class="col-12">{% include "partials/field.html" with field=form.description %}</div>
+        <div class="col-md-6">{% include "partials/field.html" with field=form.status %}</div>
+      </div>
+      <p class="small text-muted-2">The batch becomes “Processed” once every step is marked completed. You can add several steps to one batch.</p>
+      <button class="btn btn-leaf" type="submit">Save processing step</button>
+    </form></div></div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block body %}
+<div class="auth-wrap">
+  <section class="auth-art">
+    <a href="{% url 'home' %}" class="text-white text-decoration-none d-flex align-items-center fw-semibold position-absolute top-0 start-0 m-4"><span class="brand-mark"><i class="bi bi-flower2"></i></span> HerbTrace</a>
+    <h2 class="display">From forest to formulation, on the record.</h2>
+    <p class="mb-0" style="color:#d4e8dc;max-width:44ch">Sign in to record collections, laboratory results, processing and manufacturing for your batches.</p>
+  </section>
+  <section class="auth-panel">
+    <div class="auth-card">
+      <h1 class="h3 mb-1">Welcome back</h1>
+      <p class="text-muted-2">Use your username or email.</p>
+      {% include "partials/form_errors.html" %}
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.username.id_for_label }}">Username or email</label>
+          {{ form.username }}
+          {% for e in form.username.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+          <div class="input-group">
+            {{ form.password }}
+            <button class="btn btn-ghost" type="button" data-toggle-password="#{{ form.password.id_for_label }}" aria-label="Show or hide password" aria-pressed="false"><i class="bi bi-eye"></i></button>
+          </div>
+          {% for e in form.password.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+        </div>
+        <button class="btn btn-leaf w-100 mt-2" type="submit">Sign in</button>
+      </form>
+      <hr class="my-4">
+      <p class="small text-muted-2 mb-1">Collector or farmer without an account? <a href="{% url 'accounts:register' %}">Register</a> (an administrator approves new collectors).</p>
+      <p class="small text-muted-2 mb-0">Checking a product? <a href="{% url 'verification:lookup' %}">No login needed</a>.</p>
+    </div>
+  </section>
+</div>
+{% endblock %}

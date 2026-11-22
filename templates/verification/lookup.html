@@ -1,0 +1,28 @@
+{% extends "public_base.html" %}
+{% block title %}Verify a product{% endblock %}
+{% block content %}
+<section class="verify-hero">
+  <div class="container text-center">
+    <h1 class="display">Verify a product</h1>
+    <p class="mx-auto" style="max-width:56ch">Scan the QR code on the package with your phone camera, or type the product code (for example <span class="mono">FRM-20261102-AB23CD</span>) or a Batch ID below. No account is needed.</p>
+  </div>
+</section>
+<section class="verify-body">
+  <div class="container" style="max-width:640px">
+    <div class="card-leaf p-4">
+      {% include "partials/form_errors.html" %}
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <label class="form-label" for="{{ form.code.id_for_label }}">{{ form.code.label }}</label>
+        <div class="input-group">
+          <input type="text" name="code" id="{{ form.code.id_for_label }}" class="form-control" maxlength="60" required autofocus
+                 placeholder="FRM-… or HB-…" value="{{ form.code.value|default:'' }}">
+          <button class="btn btn-leaf" type="submit"><i class="bi bi-search"></i> Verify</button>
+        </div>
+        {% for e in form.code.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </form>
+    </div>
+    <p class="disclaimer mt-4">Verification shows what was recorded about a product and whether those records have been altered since. It does not prove by itself that the physical contents match the records.</p>
+  </div>
+</section>
+{% endblock %}

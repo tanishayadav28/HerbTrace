@@ -1,0 +1,27 @@
+{% extends "app_base.html" %}
+{% block title %}New formulation{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Create final formulation</h1></div>
+{% if not has_eligible %}
+<div class="card-leaf p-5 text-center text-muted-2"><i class="bi bi-box-seam fs-1"></i><p class="mt-2 mb-0">No batches are eligible yet. A batch must pass the laboratory test and have all processing steps completed.</p></div>
+{% else %}
+<form method="post" novalidate>{% csrf_token %}
+<div class="row g-4">
+  <div class="col-lg-5"><div class="card-leaf p-4"><h2 class="card-title">1. Choose batches</h2>
+    {% for e in sel_form.batches.errors %}<div class="field-error mb-2">{{ e }}</div>{% endfor %}
+    {% for cb in sel_form.batches %}<div class="form-check border-bottom py-2">{{ cb.tag }}<label class="form-check-label" for="{{ cb.id_for_label }}"><span class="mono">{{ cb.data.label }}</span></label></div>{% endfor %}
+    <p class="small text-muted-2 mt-3 mb-0">Only laboratory-passed, fully processed batches are listed. Failed or unprocessed batches cannot be selected.</p></div></div>
+  <div class="col-lg-7">
+    <div class="card-leaf p-4 mb-4"><h2 class="card-title">2. Manufacturing details</h2>
+      {% include "partials/form_errors.html" with form=mfg_form %}
+      <div class="row"><div class="col-md-6">{% include "partials/field.html" with field=mfg_form.manufacturer_name %}</div><div class="col-md-6">{% include "partials/field.html" with field=mfg_form.manufacturing_date %}</div>
+      <div class="col-12">{% include "partials/field.html" with field=mfg_form.location %}</div><div class="col-12">{% include "partials/field.html" with field=mfg_form.details %}</div></div></div>
+    <div class="card-leaf p-4"><h2 class="card-title">3. Final formulation</h2>
+      <div class="row"><div class="col-md-6">{% include "partials/field.html" with field=frm_form.product_name %}</div><div class="col-md-6">{% include "partials/field.html" with field=frm_form.formulation_date %}</div>
+      <div class="col-12">{% include "partials/field.html" with field=frm_form.packaging_info %}</div></div>
+      <button class="btn btn-leaf btn-lg" type="submit">Create formulation &amp; QR code</button></div>
+  </div>
+</div>
+</form>
+{% endif %}
+{% endblock %}

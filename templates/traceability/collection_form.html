@@ -1,0 +1,45 @@
+{% extends "app_base.html" %}
+{% block title %}Register collection{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Register herb collection</h1></div>
+{% include "partials/form_errors.html" %}
+<form method="post" novalidate>{% csrf_token %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card-leaf p-4 mb-4"><h2 class="card-title">What was collected</h2>
+      <div class="row">
+        <div class="col-md-6">{% include "partials/field.html" with field=form.herb %}</div>
+        <div class="col-md-6">{% include "partials/field.html" with field=form.source_type %}</div>
+        <div class="col-md-6">{% include "partials/field.html" with field=form.collection_date %}</div>
+        <div class="col-md-6">{% include "partials/field.html" with field=form.collection_time %}</div>
+        <div class="col-md-6">{% include "partials/field.html" with field=form.quantity %}</div>
+        <div class="col-md-6">{% include "partials/field.html" with field=form.unit %}</div>
+        <div class="col-12">{% include "partials/field.html" with field=form.collection_method %}</div>
+        <div class="col-12">{% include "partials/field.html" with field=form.sustainability_details %}</div>
+        <div class="col-md-5">{% include "partials/field.html" with field=form.permit_available %}</div>
+        <div class="col-md-7">{% include "partials/field.html" with field=form.permit_number %}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card-leaf p-4"><h2 class="card-title">Where it was collected</h2>
+      {% include "partials/field.html" with field=form.location_name %}
+      <button type="button" class="btn btn-leaf w-100 mb-1" id="gps-capture"><i class="bi bi-crosshair"></i> Capture my GPS location</button>
+      <div id="gps-status" class="small mt-2 text-muted-2" role="status">GPS is optional but strongly recommended. Without coordinates the batch needs admin review.</div>
+      <div id="pick-map" class="map-box my-3"></div>
+      <p class="small text-muted-2 mb-2">No GPS? Type coordinates, click the map, or drag the pin. These are saved as <strong>entered manually</strong>.</p>
+      <div class="row">
+        <div class="col-6">{% include "partials/field.html" with field=form.latitude %}</div>
+        <div class="col-6">{% include "partials/field.html" with field=form.longitude %}</div>
+      </div>
+      {{ form.coordinate_source }}{{ form.gps_accuracy_m }}
+    </div>
+  </div>
+</div>
+<div class="mt-4 d-flex gap-2"><button class="btn btn-leaf btn-lg" type="submit">Submit collection &amp; get Batch ID</button><a class="btn btn-ghost btn-lg" href="{% url 'traceability:farmer_dashboard' %}">Cancel</a></div>
+</form>
+{{ regions|json_script:"regions-data" }}
+{% endblock %}
+{% block scripts %}
+<script>document.addEventListener("DOMContentLoaded", function () { initCollectionPicker(JSON.parse(document.getElementById("regions-data").textContent)); });</script>
+{% endblock %}

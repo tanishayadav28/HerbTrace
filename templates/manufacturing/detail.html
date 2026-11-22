@@ -1,0 +1,24 @@
+{% extends "app_base.html" %}
+{% block title %}{{ formulation.product_name }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{{ formulation.product_name }}</h1><a class="btn btn-ghost" href="{% url 'manufacturing:history' %}">Back to history</a></div>
+<div class="row g-4">
+  <div class="col-lg-7"><div class="card-leaf p-4 mb-4"><h2 class="card-title">Formulation</h2>
+    <dl class="row mb-0">
+      <dt class="col-sm-4">Product code</dt><dd class="col-sm-8 mono">{{ formulation.formulation_code }}</dd>
+      <dt class="col-sm-4">Formulation date</dt><dd class="col-sm-8">{{ formulation.formulation_date|date:"d M Y" }}</dd>
+      <dt class="col-sm-4">Manufacturer</dt><dd class="col-sm-8">{{ formulation.manufacturing.manufacturer_name }} · {{ formulation.manufacturing.location }}</dd>
+      <dt class="col-sm-4">Manufactured on</dt><dd class="col-sm-8">{{ formulation.manufacturing.manufacturing_date|date:"d M Y" }}</dd>
+      <dt class="col-sm-4">Details</dt><dd class="col-sm-8">{{ formulation.manufacturing.details }}</dd>
+      <dt class="col-sm-4">Packaging</dt><dd class="col-sm-8">{{ formulation.packaging_info }}</dd>
+    </dl></div>
+    <div class="card-leaf p-4"><h2 class="card-title">Batches included</h2>
+      {% for b in batches %}<div class="border-bottom py-2"><a class="mono" href="{% url 'traceability:batch_detail' b.batch_id %}">{{ b.batch_id }}</a> · {{ b.collection.herb.name }} · {{ b.collection.quantity|floatformat:"-3" }} {{ b.collection.unit }}</div>{% endfor %}</div></div>
+  <div class="col-lg-5"><div class="card-leaf p-4 text-center"><h2 class="card-title">QR code</h2>
+    {% if formulation.qr_code %}<img src="{{ formulation.qr_code.image.url }}" alt="QR code for {{ formulation.product_name }}" class="img-fluid" style="max-width:260px">
+      <p class="small text-muted-2 mt-2 mb-3 text-break">{{ formulation.qr_code.url }}</p>
+      <a class="btn btn-leaf" href="{{ formulation.qr_code.image.url }}" download="{{ formulation.formulation_code }}.png"><i class="bi bi-download"></i> Download PNG</a>
+      <a class="btn btn-ghost" href="{% url 'verification:public' formulation.public_id %}" target="_blank" rel="noopener">Open public page</a>
+    {% else %}<p class="text-muted-2">No QR code was generated.</p>{% endif %}</div></div>
+</div>
+{% endblock %}

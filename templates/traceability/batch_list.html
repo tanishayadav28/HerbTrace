@@ -1,0 +1,10 @@
+{% extends "app_base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{{ title }}</h1>
+  {% if show_collector %}<a class="btn btn-ghost" href="{% url 'traceability:reports_export' %}?{{ qs_params }}"><i class="bi bi-download"></i> Export CSV</a>
+  {% else %}<a class="btn btn-leaf" href="{% url 'traceability:collection_create' %}"><i class="bi bi-plus-circle"></i> New collection</a>{% endif %}</div>
+{% include "partials/batch_filters.html" %}
+{% include "traceability/_batch_table.html" with batches=page %}
+{% include "partials/pagination.html" %}
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "app_base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Reports</h1><a class="btn btn-ghost" href="{% url 'traceability:reports_export' %}"><i class="bi bi-download"></i> Export all batches (CSV)</a></div>
+<div class="row g-4">
+  <div class="col-lg-6"><div class="card-leaf p-4 h-100"><h2 class="card-title">Collections by herb</h2>
+    {% for r in herb_rows %}<div class="d-flex justify-content-between border-bottom py-2"><span>{{ r.herb__name }}</span><strong>{{ r.n }}</strong></div>{% empty %}<p class="text-muted-2 mb-0">No data yet.</p>{% endfor %}</div></div>
+  <div class="col-lg-6"><div class="card-leaf p-4 h-100"><h2 class="card-title">Collections by approved region</h2>
+    {% for r in region_rows %}<div class="d-flex justify-content-between border-bottom py-2"><span>{{ r.region__name|default:"Outside / no region" }}</span><strong>{{ r.n }}</strong></div>{% empty %}<p class="text-muted-2 mb-0">No data yet.</p>{% endfor %}</div></div>
+  <div class="col-lg-6"><div class="card-leaf p-4 h-100"><h2 class="card-title">Batches by status</h2>
+    {% for r in status_rows %}<div class="d-flex justify-content-between border-bottom py-2"><span>{{ r.label }}</span><strong>{{ r.n }}</strong></div>{% endfor %}</div></div>
+  <div class="col-lg-6"><div class="card-leaf p-4 h-100"><h2 class="card-title">Collections per month</h2>
+    {% for r in monthly %}<div class="d-flex justify-content-between border-bottom py-2"><span>{{ r.month|date:"F Y" }}</span><strong>{{ r.n }}</strong></div>{% empty %}<p class="text-muted-2 mb-0">No data yet.</p>{% endfor %}
+    <h2 class="card-title mt-4">Laboratory outcomes</h2>
+    <p class="mb-0">{{ lab.passed }} passed of {{ lab.total }} test{{ lab.total|pluralize }}.</p></div></div>
+</div>
+{% endblock %}

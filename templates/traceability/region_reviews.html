@@ -1,0 +1,25 @@
+{% extends "app_base.html" %}
+{% block title %}Region reviews{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Region reviews</h1></div>
+<div class="disclaimer mb-3">These collections were outside every approved region, had no GPS coordinates, or were wild collections without a permit. Approve to release the batch to the laboratory, or reject to stop it permanently.</div>
+{% for b in page %}
+<div class="card-leaf p-4 mb-3">
+  <div class="d-flex flex-wrap justify-content-between gap-2">
+    <div><a class="fw-semibold mono" href="{% url 'traceability:batch_detail' b.batch_id %}">{{ b.batch_id }}</a>
+      <div>{{ b.collection.herb.name }} · {{ b.collection.quantity|floatformat:"-3" }} {{ b.collection.unit }} · {{ b.collection.collector.display_name }}</div>
+      <div class="small text-muted-2">{{ b.collection.location_name }} · {{ b.collection.get_coordinate_source_display }}{% if b.collection.has_coordinates %} · {{ b.collection.latitude }}, {{ b.collection.longitude }}{% endif %}</div></div>
+    <div class="text-end small text-muted-2">{{ b.collection.collection_date|date:"d M Y" }}</div>
+  </div>
+  <div class="alert alert-warning mt-3 mb-3 py-2 small"><strong>Why review is needed:</strong> {{ b.collection.region_reason }}</div>
+  <form method="post" class="row g-2 align-items-end">{% csrf_token %}
+    <div class="col-md-6"><label class="form-label small" for="note-{{ b.pk }}">Note (optional)</label><input id="note-{{ b.pk }}" class="form-control" name="note" maxlength="300"></div>
+    <div class="col-md-6 d-flex gap-2">
+      <button class="btn btn-leaf" formaction="{% url 'traceability:region_review_decide' b.batch_id 'approve' %}" type="submit">Approve</button>
+      <button class="btn btn-ghost" formaction="{% url 'traceability:region_review_decide' b.batch_id 'reject' %}" type="submit">Reject</button>
+    </div>
+  </form>
+</div>
+{% empty %}<div class="card-leaf p-5 text-center text-muted-2"><i class="bi bi-check2-circle fs-1 text-success"></i><p class="mt-2 mb-0">No collections are waiting for region review.</p></div>{% endfor %}
+{% include "partials/pagination.html" %}
+{% endblock %}

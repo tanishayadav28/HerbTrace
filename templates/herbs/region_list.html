@@ -1,0 +1,20 @@
+{% extends "app_base.html" %}
+{% block title %}Approved regions{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Approved collection regions</h1><a class="btn btn-leaf" href="{% url 'herbs:region_create' %}"><i class="bi bi-plus-lg"></i> Add region</a></div>
+<div class="disclaimer mb-3">Each region is a circle (centre + radius). A collection is auto-approved only when its GPS point is inside an active region that allows the herb. Anything else waits for admin review.</div>
+<div class="table-wrap"><div class="table-responsive"><table class="table table-leaf">
+  <thead><tr><th>Region</th><th>Centre</th><th>Radius</th><th>Herbs allowed</th><th>Collections</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+  <tbody>
+  {% for r in page %}
+    <tr><td><strong>{{ r.name }}</strong><div class="small text-muted-2">{{ r.state }}</div></td>
+      <td class="mono">{{ r.center_latitude }}, {{ r.center_longitude }}</td><td>{{ r.radius_km }} km</td>
+      <td>{% for h in r.herbs.all %}{{ h.name }}{% if not forloop.last %}, {% endif %}{% empty %}<span class="text-muted-2">All herbs</span>{% endfor %}</td>
+      <td>{{ r.n_collections }}</td>
+      <td>{% if r.is_active %}<span class="badge-soft success">Active</span>{% else %}<span class="badge-soft secondary">Inactive</span>{% endif %}</td>
+      <td class="text-end text-nowrap"><a class="btn btn-sm btn-ghost" href="{% url 'herbs:region_edit' r.pk %}">Edit</a>
+        <form class="d-inline" method="post" action="{% url 'herbs:region_delete' r.pk %}" data-confirm="Delete region {{ r.name }}?" data-confirm-label="Delete" data-confirm-class="btn-danger">{% csrf_token %}<button class="btn btn-sm btn-ghost" type="submit">Delete</button></form></td></tr>
+  {% empty %}<tr><td colspan="7" class="text-center text-muted-2 py-4">No regions yet. Without any, every collection will need manual review.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+{% include "partials/pagination.html" %}
+{% endblock %}

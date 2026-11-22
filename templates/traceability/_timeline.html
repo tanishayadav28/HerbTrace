@@ -1,0 +1,11 @@
+{% load herb_extras %}
+<ol class="timeline">
+{% for e in timeline %}
+  <li>
+    <div class="t-head"><span class="t-title"><i class="bi {{ e.icon }} me-1"></i>{{ e.label }}</span>
+      <span class="t-time">{{ e.timestamp|date:"d M Y, H:i" }} · by {{ e.actor }}{% if show_batch %} · {{ e.batch_id }}{% endif %}</span></div>
+    <div>{{ e.summary }}</div>
+    <div class="t-hash"><span class="hash-chip" title="{{ e.current_hash }}">#{{ e.sequence }} · {{ e.current_hash|short_hash:10 }} ← {{ e.previous_hash|short_hash:10 }}</span></div>
+  </li>
+{% empty %}<li>No ledger records yet.</li>{% endfor %}
+</ol>

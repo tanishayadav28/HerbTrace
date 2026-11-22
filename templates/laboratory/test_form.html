@@ -1,0 +1,27 @@
+{% extends "app_base.html" %}
+{% block title %}Record test · {{ batch.batch_id }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Laboratory result</h1><a class="btn btn-ghost" href="{% url 'laboratory:queue' %}">Back to queue</a></div>
+<div class="row g-4">
+  <div class="col-lg-4"><div class="card-leaf p-4"><h2 class="card-title">Batch</h2>
+    <p class="mono fw-semibold mb-1">{{ batch.batch_id }}</p>
+    <p class="mb-1">{{ collection.herb.name }} · {{ collection.quantity|floatformat:"-3" }} {{ collection.unit }}</p>
+    <p class="small text-muted-2 mb-1">Collected {{ collection.collection_date|date:"d M Y" }} at {{ collection.location_name }}</p>
+    <p class="small text-muted-2 mb-0">{{ collection.get_source_type_display }} · {{ collection.get_collection_method_display }}</p></div></div>
+  <div class="col-lg-8"><div class="card-leaf p-4">
+    {% include "partials/form_errors.html" %}
+    <form method="post" novalidate>{% csrf_token %}
+      <div class="row">
+        <div class="col-md-4">{% include "partials/field.html" with field=form.test_date %}</div>
+        <div class="col-md-4">{% include "partials/field.html" with field=form.purity_percentage %}</div>
+        <div class="col-md-4">{% include "partials/field.html" with field=form.moisture_percentage %}</div>
+        <div class="col-12">{% include "partials/field.html" with field=form.contamination_details %}</div>
+        <div class="col-12">{% include "partials/field.html" with field=form.observations %}</div>
+        <div class="col-12">{% include "partials/field.html" with field=form.remarks %}</div>
+        <div class="col-md-4">{% include "partials/field.html" with field=form.result %}</div>
+      </div>
+      <p class="small text-muted-2">PASS sends the batch to processing. FAIL rejects it permanently: it can never be processed or manufactured.</p>
+      <button class="btn btn-leaf" type="submit">Submit result</button>
+    </form></div></div>
+</div>
+{% endblock %}

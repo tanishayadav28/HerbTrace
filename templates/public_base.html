@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block body %}
+<nav class="navbar navbar-expand-lg navbar-dark site-nav sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}"><span class="brand-mark"><i class="bi bi-flower2"></i></span>HerbTrace</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-main" aria-controls="nav-main" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="nav-main">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}#how">How it works</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'home' %}#integrity">Data integrity</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'verification:lookup' %}">Verify a product</a></li>
+        {% if user.is_authenticated %}
+          <li class="nav-item"><a class="btn btn-sm btn-leaf" href="{% url 'accounts:dashboard' %}">My dashboard</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}">Login</a></li>
+          <li class="nav-item"><a class="btn btn-sm btn-leaf" href="{% url 'accounts:register' %}">Get started</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+{% block content %}{% endblock %}
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="d-flex align-items-center mb-2 text-white fw-semibold"><span class="brand-mark"><i class="bi bi-flower2"></i></span> HerbTrace</div>
+        <p class="mb-1">Blockchain-Based Geo-Tagged Traceability System for Ayurvedic Herbs.</p>
+        <p class="small mb-0">B.Tech Computer Science &amp; Engineering major project. Demonstration software: records created with the seed command are sample data, not real collections or laboratory results.</p>
+      </div>
+      <div class="col-md-3"><div class="text-white fw-semibold mb-2">Explore</div>
+        <a class="d-block" href="{% url 'verification:lookup' %}">Verify a product</a>
+        <a class="d-block" href="{% url 'accounts:login' %}">Staff login</a>
+        <a class="d-block" href="{% url 'accounts:register' %}">Collector registration</a></div>
+      <div class="col-md-3"><div class="text-white fw-semibold mb-2">Built with</div>
+        <div class="small">Django · MySQL · Bootstrap 5 · Leaflet · OpenStreetMap · SHA-256</div></div>
+    </div>
+  </div>
+</footer>
+{% endblock %}

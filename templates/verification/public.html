@@ -1,0 +1,91 @@
+{% extends "public_base.html" %}
+{% load herb_extras %}
+{% block title %}{{ formulation.product_name }} · Verification{% endblock %}
+{% block content %}
+<section class="verify-hero">
+  <div class="container">
+    <div class="small text-uppercase" style="letter-spacing:.12em;opacity:.8">Public product verification</div>
+    <h1 class="display mt-1">{{ formulation.product_name }}</h1>
+    <p class="mb-0">Product code <span class="mono">{{ formulation.formulation_code }}</span> · made by {{ manufacturing.manufacturer_name }} · formulated {{ formulation.formulation_date|date:"d M Y" }}</p>
+    {% if formulation.is_demo %}<p class="mt-2 mb-0"><span class="badge-soft warning">Demonstration data: not a real product</span></p>{% endif %}
+  </div>
+</section>
+
+<section class="verify-body">
+  <div class="container">
+    <div class="mb-4">{% include "traceability/_integrity.html" %}</div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="card-leaf p-4 mb-4">
+          <h2 class="card-title">Product &amp; manufacturing</h2>
+          <dl class="row mb-0">
+            <dt class="col-sm-4">Product</dt><dd class="col-sm-8">{{ formulation.product_name }}</dd>
+            <dt class="col-sm-4">Manufacturer</dt><dd class="col-sm-8">{{ manufacturing.manufacturer_name }}</dd>
+            <dt class="col-sm-4">Manufactured at</dt><dd class="col-sm-8">{{ manufacturing.location }}</dd>
+            <dt class="col-sm-4">Manufacturing date</dt><dd class="col-sm-8">{{ manufacturing.manufacturing_date|date:"d M Y" }}</dd>
+            <dt class="col-sm-4">Formulation date</dt><dd class="col-sm-8">{{ formulation.formulation_date|date:"d M Y" }}</dd>
+            <dt class="col-sm-4">Packaging</dt><dd class="col-sm-8">{{ formulation.packaging_info|linebreaksbr }}</dd>
+            <dt class="col-sm-4">Details</dt><dd class="col-sm-8">{{ manufacturing.details|linebreaksbr }}</dd>
+            <dt class="col-sm-4">Batches used</dt><dd class="col-sm-8">{% for i in items %}<span class="hash-chip">{{ i.batch.batch_id }}</span> {% endfor %}</dd>
+          </dl>
+        </div>
+
+        {% for i in items %}
+        <div class="card-leaf p-4 mb-4">
+          <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+            <h2 class="card-title mb-0">{{ i.collection.herb.name }} <span class="mono text-muted-2">{{ i.batch.batch_id }}</span></h2>
+          </div>
+          {% if i.collection.herb.botanical_name %}<p class="text-muted-2 fst-italic">{{ i.collection.herb.botanical_name }}</p>{% endif %}
+          <h3 class="h6 mt-3">Collection</h3>
+          <dl class="row mb-3">
+            <dt class="col-sm-4">Collected on</dt><dd class="col-sm-8">{{ i.collection.collection_date|date:"d M Y" }}, {{ i.collection.collection_time|time:"H:i" }}</dd>
+            <dt class="col-sm-4">Collector</dt><dd class="col-sm-8">{{ i.collector_name }}</dd>
+            <dt class="col-sm-4">Quantity</dt><dd class="col-sm-8">{{ i.collection.quantity|floatformat:"-3" }} {{ i.collection.unit }} · {{ i.collection.get_source_type_display }} · {{ i.collection.get_collection_method_display }}</dd>
+            <dt class="col-sm-4">Place</dt><dd class="col-sm-8">{{ i.collection.location_name }}</dd>
+            <dt class="col-sm-4">GPS</dt><dd class="col-sm-8">{% if i.collection.has_coordinates %}<span class="mono">{{ i.collection.latitude }}, {{ i.collection.longitude }}</span> <span class="badge-soft secondary">{{ i.collection.get_coordinate_source_display }}</span>{% else %}Not recorded. No exact location is claimed.{% endif %}</dd>
+            <dt class="col-sm-4">Region</dt><dd class="col-sm-8">{% if i.collection.region %}{{ i.collection.region.name }}{% else %}No approved region matched{% endif %} {% include "partials/badge.html" with code=i.collection.region_status label=i.collection.get_region_status_display %}</dd>
+          </dl>
+
+          <h3 class="h6">Laboratory</h3>
+          {% if i.test %}
+            <div class="border rounded-3 p-3 mb-3">
+              <div class="d-flex justify-content-between"><strong>Tested {{ i.test.test_date|date:"d M Y" }}</strong>{% include "partials/badge.html" with code=i.test.result label=i.test.result %}</div>
+              <div class="small mt-1">Purity {{ i.test.purity_percentage }}% · Moisture {{ i.test.moisture_percentage }}%</div>
+              {% if i.test.contamination_details %}<div class="small"><strong>Contamination:</strong> {{ i.test.contamination_details }}</div>{% endif %}
+              {% if i.test.observations %}<div class="small"><strong>Observations:</strong> {{ i.test.observations }}</div>{% endif %}
+              {% if i.test.remarks %}<div class="small"><strong>Remarks:</strong> {{ i.test.remarks }}</div>{% endif %}
+            </div>
+          {% else %}<p class="text-muted-2">No laboratory result recorded.</p>{% endif %}
+
+          <h3 class="h6">Processing</h3>
+          {% for p in i.processing %}
+            <div class="d-flex justify-content-between border-bottom py-2"><div><strong>{{ p.get_stage_display }}</strong> · {{ p.processing_date|date:"d M Y" }} · {{ p.location }}<div class="small text-muted-2">{{ p.description }}</div></div>{% include "partials/badge.html" with code=p.status label=p.get_status_display %}</div>
+          {% empty %}<p class="text-muted-2 mb-0">No processing steps recorded.</p>{% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card-leaf p-3 mb-4">
+          <h2 class="card-title px-1 pt-1">Where the herbs were collected</h2>
+          <div class="map-box tall" data-markers-id="marker-data"></div>
+        </div>
+        {% if qr %}
+        <div class="card-leaf p-4 mb-4 text-center">
+          <h2 class="card-title">Product QR code</h2>
+          <img src="{{ qr.image.url }}" alt="QR code that opens this page" width="180" height="180" class="img-fluid" style="max-width:180px">
+          <p class="small text-muted-2 mt-2 mb-0">Scanning opens this page.</p>
+        </div>
+        {% endif %}
+        <div class="card-leaf p-4 mb-4">
+          <h2 class="card-title">Traceability timeline</h2>
+          {% include "traceability/_timeline.html" with show_batch=True %}
+        </div>
+        <p class="disclaimer">The ledger provides record integrity and modification detection inside this application. It is not decentralised, and it cannot independently prove that the physical herbs match their records.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{{ markers|json_script:"marker-data" }}
+{% endblock %}

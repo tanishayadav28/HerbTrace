@@ -1,0 +1,13 @@
+<form method="get" class="filter-bar row g-2 align-items-end" data-no-loader>
+  <div class="col-12 col-md-4"><label class="form-label small" for="f-q">Search Batch ID, herb or location</label>
+    <input id="f-q" class="form-control" name="q" value="{{ q }}" placeholder="e.g. HB-2026… or Ashwagandha"></div>
+  <div class="col-6 col-md-2"><label class="form-label small" for="f-status">Status</label>
+    <select id="f-status" class="form-select" name="status"><option value="">All</option>
+      {% for code, label in statuses %}<option value="{{ code }}" {% if code == status %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+  <div class="col-6 col-md-2"><label class="form-label small" for="f-from">Collected from</label>
+    <input id="f-from" type="date" class="form-control" name="date_from" value="{{ date_from }}"></div>
+  <div class="col-6 col-md-2"><label class="form-label small" for="f-to">Collected to</label>
+    <input id="f-to" type="date" class="form-control" name="date_to" value="{{ date_to }}"></div>
+  <div class="col-6 col-md-2 d-flex gap-2"><button class="btn btn-leaf flex-fill" type="submit"><i class="bi bi-search"></i> Filter</button>
+    <a class="btn btn-ghost" href="?" title="Clear filters" aria-label="Clear filters"><i class="bi bi-x-lg"></i></a></div>
+</form>

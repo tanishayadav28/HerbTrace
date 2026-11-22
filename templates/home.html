@@ -1,0 +1,130 @@
+{% extends "public_base.html" %}
+{% block title %}From forest to formulation{% endblock %}
+{% block content %}
+<header class="hero">
+  <div class="container py-5">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <h1 class="display">Know exactly where your Ayurvedic herbs came from.</h1>
+        <p class="lead mt-3">HerbTrace follows each batch from the field to the finished formulation. Collectors record the GPS location, laboratories record the test result, and every step is written to a hash-linked ledger. A QR code on the product opens the full story.</p>
+        <div class="d-flex flex-wrap gap-3 mt-4">
+          {% if user.is_authenticated %}
+            <a class="btn btn-leaf btn-lg" href="{% url 'accounts:dashboard' %}">Open my dashboard</a>
+          {% else %}
+            <a class="btn btn-leaf btn-lg" href="{% url 'accounts:register' %}">Get started</a>
+            <a class="btn btn-ghost-light btn-lg" href="{% url 'accounts:login' %}">Login</a>
+          {% endif %}
+          <a class="btn btn-ghost-light btn-lg" href="{% url 'verification:lookup' %}"><i class="bi bi-qr-code-scan"></i> Verify a product</a>
+        </div>
+        <p class="hero-note mt-4 mb-0">No account is needed to verify a product. {{ stats.batches }} batch{{ stats.batches|pluralize:"es" }} tracked so far, {{ stats.products }} final product{{ stats.products|pluralize }}.</p>
+      </div>
+      <div class="col-lg-5">
+        <div class="provenance-card" aria-label="Example provenance record">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Sample batch record</strong><span class="hash-chip">illustration</span>
+          </div>
+          <div class="row-item"><span class="dot"><i class="bi bi-geo-alt"></i></span><div><strong>Collected</strong><small>Ashwagandha root, 42 kg, inside an approved region</small></div></div>
+          <div class="row-item"><span class="dot"><i class="bi bi-clipboard2-pulse"></i></span><div><strong>Laboratory: PASS</strong><small>Purity and moisture recorded by lab staff</small></div></div>
+          <div class="row-item"><span class="dot"><i class="bi bi-gear"></i></span><div><strong>Processed</strong><small>Cleaning, drying, grinding</small></div></div>
+          <div class="row-item"><span class="dot"><i class="bi bi-capsule-pill"></i></span><div><strong>Formulation + QR</strong><small>Scan to see every step above</small></div></div>
+          <div class="mt-2"><small>Ledger link</small><span class="hash-chip">9f2c…a41e ← 03b7…d9c0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="section" id="how">
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-lg-5">
+        <h2>How a batch travels</h2>
+        <p class="section-intro">Six roles each add one part of the record. A batch cannot skip a step: a failed laboratory test stops it for good.</p>
+      </div>
+      <div class="col-lg-7">
+        <div class="step"><span class="num">1</span><h3>Collector registers the harvest</h3><p class="text-muted-2 mb-0">Herb, quantity, method, source and permit, with the GPS position captured by the phone or entered by hand. A unique Batch ID is issued.</p></div>
+        <div class="step"><span class="num">2</span><h3>Region is checked</h3><p class="text-muted-2 mb-0">The position is compared with admin-approved regions. Outside any of them, the batch waits for an administrator's decision.</p></div>
+        <div class="step"><span class="num">3</span><h3>Laboratory tests the batch</h3><p class="text-muted-2 mb-0">Purity, moisture and contamination are recorded. PASS moves the batch on; FAIL rejects it.</p></div>
+        <div class="step"><span class="num">4</span><h3>Processor records each stage</h3><p class="text-muted-2 mb-0">Cleaning, drying, grinding and more, each with date, place and status.</p></div>
+        <div class="step"><span class="num">5</span><h3>Manufacturer creates the formulation</h3><p class="text-muted-2 mb-0">Processed, lab-approved batches are combined into a product with packaging details and a QR code.</p></div>
+        <div class="step"><span class="num">6</span><h3>Anyone verifies by QR</h3><p class="text-muted-2 mb-0">Consumers and regulators open the public page, with no login, and see the origin map, test results, timeline and ledger status.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="features">
+  <div class="container">
+    <h2>What the system gives you</h2>
+    <div class="row g-4 mt-1">
+      <div class="col-md-6 col-lg-4"><div class="feature"><div class="icon"><i class="bi bi-geo-alt"></i></div><h3 class="h5">Geo-tagged collection</h3><p class="text-muted-2 mb-0">Browser GPS capture, a manual fallback, and a map of every collection point.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="feature"><div class="icon"><i class="bi bi-pin-map"></i></div><h3 class="h5">Approved-region check</h3><p class="text-muted-2 mb-0">Collections are tested against configured regions, never accepted blindly.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="feature"><div class="icon"><i class="bi bi-clipboard2-pulse"></i></div><h3 class="h5">Laboratory gate</h3><p class="text-muted-2 mb-0">Only PASS batches reach processing and manufacturing.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="feature"><div class="icon"><i class="bi bi-people"></i></div><h3 class="h5">Role-based dashboards</h3><p class="text-muted-2 mb-0">Admin, collector, laboratory, processor and manufacturer each see only their own tools.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="feature"><div class="icon"><i class="bi bi-link-45deg"></i></div><h3 class="h5">Tamper-evident ledger</h3><p class="text-muted-2 mb-0">SHA-256 hash links expose edited, reordered or removed records.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="feature"><div class="icon"><i class="bi bi-qr-code"></i></div><h3 class="h5">QR verification</h3><p class="text-muted-2 mb-0">One public page per product with the complete traceability timeline.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6">
+        <h2>Why traceability matters</h2>
+        <p class="section-intro">Herbal supply chains are long and the raw material changes hands many times. Without records it is hard to answer basic questions.</p>
+        <ul class="list-unstyled mt-3 d-grid gap-2">
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>Was this herb collected somewhere it is allowed to be collected?</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>Was it tested before it was processed?</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>Which batches went into this exact product?</li>
+          <li><i class="bi bi-check-circle-fill text-success me-2"></i>Has any record been changed since it was written?</li>
+        </ul>
+      </div>
+      <div class="col-lg-6">
+        <div class="card-leaf p-4">
+          <h3 class="h5">Sustainability and safety</h3>
+          <p class="text-muted-2">Recording the source type, collection method, permit and sustainability notes for every batch helps protect wild plant populations and gives regulators something concrete to inspect.</p>
+          <p class="text-muted-2 mb-0">Laboratory results are attached to the same batch that ends up on the label, so a safety question can be traced back to the harvest that caused it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-dark" id="integrity">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6">
+        <h2>A hash-linked ledger, kept honest about what it proves</h2>
+        <p class="section-intro">Every event is stored with the SHA-256 hash of the event before it. Change any stored record and its hash no longer matches; delete one from the middle and the chain no longer links. An administrator can re-run the check at any time, and the public page shows a warning if it fails.</p>
+        <p class="section-intro">This is application-level record integrity and modification detection. It is not a decentralised network, and it cannot prove that a physical sack of herbs matches its record.</p>
+      </div>
+      <div class="col-lg-6">
+<pre class="ledger-sample mb-0" aria-label="Example ledger entry"><span class="k">record</span>        #14
+<span class="k">batch_id</span>      HB-20261014-K7QM2X
+<span class="k">event_type</span>    LAB_TEST_RECORDED
+<span class="k">previous_hash</span> <span class="h">3be1…9a07</span>
+<span class="k">current_hash</span>  <span class="h">c52d…f1b8</span>  = SHA-256(record + previous_hash)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6 order-lg-2">
+        <h2>Verify with a scan, not an account</h2>
+        <p class="section-intro">Each final formulation gets its own QR code. It opens a public page showing the product, the batches inside it, where each was collected, the laboratory result, processing history, manufacturer and whether the ledger still checks out.</p>
+        <a class="btn btn-leaf mt-3" href="{% url 'verification:lookup' %}">Look up a product code</a>
+      </div>
+      <div class="col-lg-6 order-lg-1">
+        <div class="card-leaf p-4 d-flex align-items-center gap-4 flex-wrap">
+          <div style="width:120px;height:120px;border-radius:14px;background:repeating-conic-gradient(var(--forest-2) 0 25%, #fff 0 50%) 0 0/24px 24px;border:6px solid #fff;box-shadow:var(--shadow)" role="img" aria-label="Decorative QR pattern"></div>
+          <div><strong class="display">Public product page</strong><p class="text-muted-2 mb-0">Origin map · lab results · timeline · ledger status</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

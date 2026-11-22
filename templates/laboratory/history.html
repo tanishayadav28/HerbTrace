@@ -1,0 +1,16 @@
+{% extends "app_base.html" %}
+{% block title %}Test history{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Laboratory test history</h1></div>
+<form method="get" class="filter-bar row g-2 align-items-end" data-no-loader>
+  <div class="col-md-6"><label class="form-label small" for="q">Search Batch ID or herb</label><input id="q" class="form-control" name="q" value="{{ q }}"></div>
+  <div class="col-md-3"><label class="form-label small" for="r">Result</label><select id="r" class="form-select" name="result"><option value="">All</option><option value="PASS" {% if result == "PASS" %}selected{% endif %}>PASS</option><option value="FAIL" {% if result == "FAIL" %}selected{% endif %}>FAIL</option></select></div>
+  <div class="col-md-3 d-flex gap-2"><button class="btn btn-leaf flex-fill">Filter</button><a class="btn btn-ghost" href="?" aria-label="Clear filters"><i class="bi bi-x-lg"></i></a></div>
+</form>
+<div class="table-wrap"><div class="table-responsive"><table class="table table-leaf">
+  <thead><tr><th>Batch</th><th>Herb</th><th>Test date</th><th>Purity</th><th>Moisture</th><th>Result</th><th>Tested by</th></tr></thead><tbody>
+  {% for t in page %}<tr><td><a class="mono" href="{% url 'traceability:batch_detail' t.batch.batch_id %}">{{ t.batch.batch_id }}</a></td><td>{{ t.batch.collection.herb.name }}</td><td>{{ t.test_date|date:"d M Y" }}</td><td>{{ t.purity_percentage }}%</td><td>{{ t.moisture_percentage }}%</td><td>{% include "partials/badge.html" with code=t.result label=t.result %}</td><td>{{ t.tested_by.display_name }}</td></tr>
+  {% empty %}<tr><td colspan="7" class="text-center text-muted-2 py-4">No laboratory tests recorded yet.</td></tr>{% endfor %}
+  </tbody></table></div></div>
+{% include "partials/pagination.html" %}
+{% endblock %}

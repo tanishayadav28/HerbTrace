@@ -1,0 +1,16 @@
+{% extends "app_base.html" %}
+{% block title %}My dashboard{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Hello, {{ request.user.first_name|default:request.user.username }}</h1><a class="btn btn-leaf" href="{% url 'traceability:collection_create' %}"><i class="bi bi-plus-circle"></i> Register collection</a></div>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-basket"></i></span><div class="value">{{ stats.total }}</div><div class="label">Collections</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat warn"><span class="icon"><i class="bi bi-hourglass-split"></i></span><div class="value">{{ stats.awaiting_lab }}</div><div class="label">Awaiting lab test</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat warn"><span class="icon"><i class="bi bi-patch-question"></i></span><div class="value">{{ stats.pending_review }}</div><div class="label">Region review pending</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-check2-circle"></i></span><div class="value">{{ stats.in_chain }}</div><div class="label">Cleared, in processing</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat"><span class="icon"><i class="bi bi-capsule"></i></span><div class="value">{{ stats.manufactured }}</div><div class="label">Made into products</div></div></div>
+  <div class="col-6 col-lg-3"><div class="stat bad"><span class="icon"><i class="bi bi-x-octagon"></i></span><div class="value">{{ stats.rejected }}</div><div class="label">Rejected</div></div></div>
+</div>
+<div class="card-leaf p-4"><h2 class="card-title">Recent collections</h2>
+  {% include "traceability/_batch_table.html" with batches=recent show_collector=False %}
+  <a class="btn btn-ghost btn-sm mt-3" href="{% url 'traceability:my_collections' %}">See all</a></div>
+{% endblock %}
